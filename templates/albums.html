@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Albums{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Michael Jackson Discography</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Album</button>
+</div>
+
+<p class="text-muted">
+    Every row below is a row in the <code>albums</code> table. Add, edit and
+    delete all write to the database.
+</p>
+
+{% if albums %}
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Year</th>
+            <th>Label</th>
+            <th>Copies Sold (millions)</th>
+            <th>Description</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for album in albums %}
+        <tr>
+            <td>{{ album.title }}</td>
+            <td>{{ album.release_year }}</td>
+            <td>{{ album.record_label }}</td>
+            <td>{{ album.copies_sold_millions }}</td>
+            <td>{{ album.description }}</td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editModal{{ album.id }}">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ album.id }}">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-secondary">
+    No rows yet. If you have not loaded <code>database/schema.sql</code> and
+    <code>database/seed_data.sql</code> into your database, do that first.
+</div>
+{% endif %}
+
+<!-- Add -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" method="POST" action="{{ url_for('albums.add_album') }}">
+            <div class="modal-header">
+                <h5 class="modal-title">Add an album</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="add-title">Title</label>
+                    <input class="form-control" id="add-title" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="add-release_year">Release year</label>
+                    <input class="form-control" type="number" id="add-release_year" name="release_year" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="add-record_label">Record label</label>
+                    <input class="form-control" id="add-record_label" name="record_label">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="add-copies_sold_millions">Copies sold (millions)</label>
+                    <input class="form-control" type="number" step="0.1" id="add-copies_sold_millions" name="copies_sold_millions">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="add-description">Description</label>
+                    <textarea class="form-control" id="add-description" name="description" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% for album in albums %}
+<!-- Edit {{ album.id }} -->
+<div class="modal fade" id="editModal{{ album.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" method="POST" action="{{ url_for('albums.edit_album', album_id=album.id) }}">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="edit-title-{{ album.id }}">Title</label>
+                    <input class="form-control" id="edit-title-{{ album.id }}" name="title" value="{{ album.title }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="edit-release_year-{{ album.id }}">Release year</label>
+                    <input class="form-control" type="number" id="edit-release_year-{{ album.id }}" name="release_year" value="{{ album.release_year }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="edit-record_label-{{ album.id }}">Record label</label>
+                    <input class="form-control" id="edit-record_label-{{ album.id }}" name="record_label" value="{{ album.record_label }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="edit-copies_sold_millions-{{ album.id }}">Copies sold (millions)</label>
+                    <input class="form-control" type="number" step="0.1" id="edit-copies_sold_millions-{{ album.id }}" name="copies_sold_millions" value="{{ album.copies_sold_millions }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="edit-description-{{ album.id }}">Description</label>
+                    <textarea class="form-control" id="edit-description-{{ album.id }}" name="description" rows="3">{{ album.description }}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete {{ album.id }} -->
+<div class="modal fade" id="deleteModal{{ album.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" method="POST" action="{{ url_for('albums.delete_album', album_id=album.id) }}">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete this album?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Delete <strong>{{ album.title }}</strong>? This cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

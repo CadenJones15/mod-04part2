@@ -60,10 +60,10 @@ def healthz():
 
 # --- Blueprints -------------------------------------------------------------
 # A blueprint is a group of related pages kept in its own file. Register each
-# one here. You will add your own in Module 4 and remove the examples one.
-from blueprints.examples import examples_bp  # noqa: E402
+# one here.
+from blueprints.albums import albums_bp  # noqa: E402
 
-app.register_blueprint(examples_bp)
+app.register_blueprint(albums_bp)
 
 
 # --- Error pages ------------------------------------------------------------
